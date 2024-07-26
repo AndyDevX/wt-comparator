@@ -20,10 +20,42 @@ session_start();
             overflow-x: scroll;
         }
         .card {
-            min-width: 10rem;
-            min-height: 14rem;
-
+            min-width: 12rem;
+            max-width: 12rem;
+            min-height: 20rem;
+            max-height: 20rem;
+            border: solid 2px #666;
+            background-color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             margin: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: #f4ffc1;
+        }
+        .card:hover {
+            cursor: pointer;
+        }
+        .card header {
+            background-color: #444;
+            color: #f4ffc1;
+            padding: 5px;
+            width: 100%;
+            font-weight: bold;
+            border-bottom: solid 2px #555;
+        }
+        .card img {
+            max-width: 100%;
+            height: auto;
+            border-bottom: solid 2px #555;
+        }
+        .card footer {
+            padding: 3px;
+            width: 100%;
+            background-color: #444;
+            border-top: solid 2px #555;
+            font-size: 0.9rem;
         }
 
         /* Estilos para la capa de carga */
@@ -73,6 +105,20 @@ session_start();
     </div>
 </div>
 
+<!--
+<div id="selected-plane" style="display: none;">
+    <div class="selected-content">
+        <p>Nombre: </p>
+        <p>BR: </p>
+        <p>Velocidad máxima: </p>
+        <p>Altitud máxima: </p>
+        <p>Tiempo de giro: </p>
+        <p>Altitud de eficiencia máxima: </p>
+        <p>Armas: </p>
+        <p>??Peso muerto: </p>
+    </divc>
+</div>
+-->
 
 <body>
     <header class = "container-fluid">
@@ -210,20 +256,20 @@ session_start();
                         foreach ($eras as $era => $vehicles) {
                             foreach ($vehicles as $vehicle) {
                                 ?>
-                                <article class="card">
+                                <article onclick="showPlane('<?= $vehicle['identifier']; ?>')" class="card">
                                     <header>
-                                        <h3>
-                                            <?php
-                                            if (isset($vehicle['identifier'])) {
-                                                $name = $vehicle['identifier'];
-                                                $name = str_replace("_", " ", $name);
-                                                $name = strtoupper($name);
-                                                echo htmlspecialchars($name);
-                                            } else {
-                                                echo "Sin identificador";
-                                            }
-                                            ?>
-                                        </h3>
+                                        <?php
+                                        if (isset($vehicle['identifier'])) {
+                                            $name = $vehicle['identifier'];
+                                            echo "<input type='hidden' name='identifier' value='$name'>";
+
+                                            $name = str_replace("_", " ", $name);
+                                            $name = strtoupper($name);
+                                            echo htmlspecialchars($name);
+                                        } else {
+                                            echo "Sin identificador";
+                                        }
+                                        ?>
                                     </header>
                                     <?php
                                     if (isset($vehicle['images']['image'])) {
@@ -234,12 +280,25 @@ session_start();
                                     ?>
                                     <footer>
                                         <?php
+                                        //? BR
+                                        if (isset($vehicle['arcade_br'])) {
+                                            $brArcade = $vehicle['arcade_br'];
+                                            echo "<p>Arcade BR: <strong style='color: #b18e45;'>" . $brArcade . "</strong></p>";
+                                        }
+                                        if (isset($vehicle['realistic_br'])) {
+                                            $brRealistic = $vehicle['realistic_br'];
+                                            echo "<p>Realistic BR: <strong style='color: #b18e45;'>" . $brRealistic . "</strong></p>";
+                                        }
+
+                                        //? Subtipos
+                                        /*
                                             if (isset($vehicle['vehicle_sub_types']) && is_array($vehicle['vehicle_sub_types'])) {
                                                 $class = htmlspecialchars(implode(', ', $vehicle['vehicle_sub_types']));
                                                 $class = strtoupper($class);
                                                 $class = str_replace("_", " ", $class);
-                                                echo $class;
+                                                echo "<p>" . $class . "</p>";
                                             }
+                                        */
                                         ?>
                                     </footer>
                                 </article>
@@ -258,14 +317,15 @@ session_start();
 
     <script>
         document.querySelector('form').addEventListener('submit', function(event) {
-            document.getElementById('loading-overlay').style.display = 'flex';
             const nationsChecked = document.querySelectorAll("input[name='nations[]']:checked").length > 0;
             const classesChecked = document.querySelectorAll("input[name='classes[]']:checked").length > 0;
             const tiersChecked = document.querySelectorAll("input[name='tiers[]']:checked").length > 0;
-
+            
             if (!nationsChecked || !classesChecked || !tiersChecked) {
                 event.preventDefault();
                 alert("Please select at least one option in each category.");
+            } else {
+                document.getElementById('loading-overlay').style.display = 'flex';
             }
         });
 
@@ -299,6 +359,12 @@ session_start();
         limitCheckboxes('nation-checkbox', 3);
         limitCheckboxes('class-checkbox', 3);
         limitCheckboxes('tier-checkbox', 3);
+
+        function showPlane(identifier) {
+            const plane = identifier;
+            
+
+        }
     </script>
 </body>
 
