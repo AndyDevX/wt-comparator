@@ -1,6 +1,7 @@
 <?php
 session_start();
-
+//todo Considerar añadir sección de comentarios
+//todo ? Requerirá sistema de autenticación de usuarios (Google / Facebook / GitHub)
 ?>
 
 <!DOCTYPE html>
@@ -9,93 +10,12 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light-dark">
-    <title>Compare Planes</title>
+    <title>WT Compare</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.amber.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"/>
 
-    <style>
-        .card-deck {
-            display: flex;
-            overflow-x: scroll;
-        }
-        .card {
-            min-width: 12rem;
-            max-width: 12rem;
-            min-height: 20rem;
-            max-height: 20rem;
-            border: solid 2px #666;
-            background-color: #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            margin: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            color: #f4ffc1;
-        }
-        .card:hover {
-            cursor: pointer;
-        }
-        .card header {
-            background-color: #444;
-            color: #f4ffc1;
-            padding: 5px;
-            width: 100%;
-            font-weight: bold;
-            border-bottom: solid 2px #555;
-        }
-        .card img {
-            max-width: 100%;
-            height: auto;
-            border-bottom: solid 2px #555;
-        }
-        .card footer {
-            padding: 3px;
-            width: 100%;
-            background-color: #444;
-            border-top: solid 2px #555;
-            font-size: 0.9rem;
-        }
-
-        /* Estilos para la capa de carga */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            display: none; /* Oculta la capa por defecto */
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 1s ease-in-out;
-        }
-
-        .loading-content {
-            text-align: center;
-            font-size: 1.5rem;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-        }
-
-        /* Añadir imagen de fondo */
-        .loading-overlay::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('loadingScreens/loading0.jpg') no-repeat center center;
-            background-size: cover;
-            z-index: -1;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <!-- Capa de carga -->
@@ -106,22 +26,12 @@ session_start();
 </div>
 
 <!--
-<div id="selected-plane" style="display: none;">
-    <div class="selected-content">
-        <p>Nombre: </p>
-        <p>BR: </p>
-        <p>Velocidad máxima: </p>
-        <p>Altitud máxima: </p>
-        <p>Tiempo de giro: </p>
-        <p>Altitud de eficiencia máxima: </p>
-        <p>Armas: </p>
-        <p>??Peso muerto: </p>
-    </divc>
-</div>
+//todo Vista al momento de elegir una carta, que muestre datos detallados del avión
+//todo Confirmación de la selección y proceder a elegir al rival
 -->
 
 <body>
-    <header class = "container-fluid">
+    <header class="container-fluid">
         <nav>
             <ul>
                 <li><strong>War Thunder comparator</strong></li>
@@ -146,6 +56,23 @@ session_start();
     </header>
 
     <main class="container">
+        <dialog id="modal" class="wide">
+            <article id="wide-content">
+                <h2>Plane name</h2>
+                
+                <div class="grid">
+                    <div id="planePicture">Picture</div>
+                    <div id="planeInfo">Info</div>
+                    <div id="planeWeapons">Weapons</div>
+                </div>
+
+                <footer>
+                    <button class="secondary">Cancel</button>
+                    <button>Confirm</button>
+                </footer>
+            </article>
+        </dialog>
+
         <div>
             <!-- Filtro de búsqueda de aviones -->
             <form method="post" action="filter.php">
@@ -315,57 +242,7 @@ session_start();
         </div>
     </main>
 
-    <script>
-        document.querySelector('form').addEventListener('submit', function(event) {
-            const nationsChecked = document.querySelectorAll("input[name='nations[]']:checked").length > 0;
-            const classesChecked = document.querySelectorAll("input[name='classes[]']:checked").length > 0;
-            const tiersChecked = document.querySelectorAll("input[name='tiers[]']:checked").length > 0;
-            
-            if (!nationsChecked || !classesChecked || !tiersChecked) {
-                event.preventDefault();
-                alert("Please select at least one option in each category.");
-            } else {
-                document.getElementById('loading-overlay').style.display = 'flex';
-            }
-        });
-
-        const selectAll = (buttonId, checkboxSelector) => {
-            document.getElementById(buttonId).addEventListener("click", () => {
-                document.querySelectorAll(checkboxSelector).forEach(checkbox => checkbox.checked = true);
-            });
-        };
-
-        selectAll("all-classes", "input[name='classes[]']");
-
-        // Función para limitar la selección de checkboxes
-        const limitCheckboxes = (checkboxClass, maxChecked) => {
-            const checkboxes = document.querySelectorAll(`.${checkboxClass}`);
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    const checkedCount = document.querySelectorAll(`.${checkboxClass}:checked`).length;
-                    if (checkedCount >= maxChecked) {
-                        checkboxes.forEach(box => {
-                            if (!box.checked) {
-                                box.disabled = true;
-                            }
-                        });
-                    } else {
-                        checkboxes.forEach(box => box.disabled = false);
-                    }
-                });
-            });
-        };
-
-        limitCheckboxes('nation-checkbox', 3);
-        limitCheckboxes('class-checkbox', 3);
-        limitCheckboxes('tier-checkbox', 3);
-
-        function showPlane(identifier) {
-            const plane = identifier;
-            
-
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>

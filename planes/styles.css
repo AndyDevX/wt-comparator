@@ -1,0 +1,85 @@
+.card-deck {
+    display: flex;
+    overflow-x: scroll;
+}
+.card {
+    min-width: 12rem;
+    max-width: 12rem;
+    min-height: 20rem;
+    max-height: 20rem;
+    border: solid 2px #666;
+    background-color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: #f4ffc1;
+}
+.card:hover {
+    cursor: pointer;
+}
+.card header {
+    background-color: #444;
+    color: #f4ffc1;
+    padding: 5px;
+    width: 100%;
+    font-weight: bold;
+    border-bottom: solid 2px #555;
+}
+.card img {
+    max-width: 100%;
+    height: auto;
+    border-bottom: solid 2px #555;
+}
+.card footer {
+    padding: 3px;
+    width: 100%;
+    background-color: #444;
+    border-top: solid 2px #555;
+    font-size: 0.9rem;
+}
+
+/* Estilos para la capa de carga */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    display: none; /* Oculta la capa por defecto */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 1s ease-in-out;
+}
+
+.loading-content {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+}
+
+/* Añadir imagen de fondo */
+.loading-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('loadingScreens/loading0.jpg') no-repeat center center;
+    background-size: cover;
+    z-index: -1;
+}
+
+#wide-content {
+    width: 90%; /* Ajusta este valor según tus necesidades */
+    max-width: 1300px;
+}
